@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.authtoken.views import ObtainAuthToken
+
 
 from . import serializers
 from . import models
@@ -12,6 +15,19 @@ from . import permissions
 
 # views are code that's run when user visits api endpoint
 
+
+
+
+#DRF has a login API view that takes care of login for us
+#however, it's fixed as an APIView and it doesn't have a ViewSet we can use
+#hence, it means we can't use our standard router :/
+#so, we'll need to use the APIView to trick the system that it's a viewset
+
+
+#APIViews generally give you more control. They use standard HTTP methods in their functions
+#to return requested information. However, you can't use routers with APIViews.
+#Using routers is an added benefit of viewsets.
+#
 class HelloApiView(APIView):
     """Test API View."""
 
@@ -125,3 +141,25 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.UpdateOwnProfile,) #include commas so you can add additional permissions/authentications
     filter_backends = (filters.SearchFilter,) #allows for search functionality
     search_fields = ('name','email') #search filter backend to search for name and email
+
+#Login should be a view set so we can use the router to access at the API root
+#
+#here's how the token works:
+#it a user successfully logs in with a matched username and password,
+#they will be provided a temporary token. THe app is responsible for ensuring
+#that token is included in all future HTTP requests, by adding the token to the HTTP headers for all requests it makes
+#An Http header, is like a metadata that goes along with the HTTP request
+#Every time the app makes a request to our API, we can check if the token is valid in the Http headers
+#if valid, perform request! Else, return 401 unauthorized response, and redirect user back to login page 
+class LoginViewSet(viewsets.ViewSet):
+    """checks email and password and returns an auth token"""
+
+    serializer_class = AuthTokenSerializer
+
+    #create is essentially just a post request
+    #this will make your AuthToken when you login
+    def create(self, request):
+        """Use the ObtainAuthToken APIView to validate and create a token"""
+
+        #post, because this is an APIView
+        return ObtainAuthToken().post(request)

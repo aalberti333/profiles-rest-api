@@ -6,8 +6,11 @@ from . import views
 router = DefaultRouter()
 router.register('hello-viewset', views.HelloViewSet, base_name='hello-viewset')
 
-#WHen register a model viewset, you don't need to register a base name
+#WHen register a ModelViewset, you don't need to register a base name
 router.register('profile', views.UserProfileViewSet)
+
+#base name, since it's not a ModelViewSet
+router.register('login', views.LoginViewSet, base_name='login')
 
 urlpatterns = [
     url(r'^hello-view/', views.HelloApiView.as_view()),
