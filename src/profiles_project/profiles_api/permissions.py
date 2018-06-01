@@ -25,9 +25,19 @@ class UpdateOwnProfile(permissions.BasePermission):
 
         #check if user is trying to change THEIR OWN profile
         #this should be True, users should be allowed delete/update/change
-        #their own profile
-
-
+        #their own profiles
         #checks to see if the user trying to make changes is the same as the id
         #of the object trying to be changed
         return obj.id == request.user.id
+
+
+class PostOwnStatus(permissions.BasePermission):
+    """Allow users to update their own status"""
+
+    def has_object_permission(self, request, view, obj):
+        """check user is trying to update their own status"""
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.user_profile.id == request.user.id

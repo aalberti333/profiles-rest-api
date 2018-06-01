@@ -7,6 +7,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated #will be to make sure only registered users can Read info
 
 
 from . import serializers
@@ -150,7 +152,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 #that token is included in all future HTTP requests, by adding the token to the HTTP headers for all requests it makes
 #An Http header, is like a metadata that goes along with the HTTP request
 #Every time the app makes a request to our API, we can check if the token is valid in the Http headers
-#if valid, perform request! Else, return 401 unauthorized response, and redirect user back to login page 
+#if valid, perform request! Else, return 401 unauthorized response, and redirect user back to login page
 class LoginViewSet(viewsets.ViewSet):
     """checks email and password and returns an auth token"""
 
@@ -163,3 +165,24 @@ class LoginViewSet(viewsets.ViewSet):
 
         #post, because this is an APIView
         return ObtainAuthToken().post(request)
+
+
+
+class UserProfileFeedViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating profile feed items."""
+
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.ProfileFeedItemSerializer
+    queryset = models.ProfileFeedItem.objects.all()
+    permission_classes = (permissions.PostOwnStatus, IsAuthenticated)
+    #will not let you EDIT or READ the status if you are not authenticated, this way, you won't get a page error
+
+    def perform_create(self, serializer):
+        """sets the user profile to the logged in user."""
+
+        #when rest creates a new object wiht this viewset, it will call perform_create
+        #and pass on validated serializer
+        #we can user serializer to create a new object, but when we create it ,
+        #we'll manually set the user profile to the profile which is currently logged in
+
+        serializer.save(user_profile=self.request.user)
