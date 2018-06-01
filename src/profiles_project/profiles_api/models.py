@@ -70,3 +70,17 @@ class UserProfile(AbstractBaseUser, PermissionsMixin): #inherits from what's in 
         """Django uses this when it needs to convert the object to a string"""
 
         return self.email
+
+
+class ProfileFeedItem(models.Model):
+    """Profile status update."""
+
+    #we want to link this to our user profile, so we need to use a foreign key
+    user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE) #second parameter is what you want to do if UserProfile is deleted
+    #on_delete=models.CASCADE will delete all ProfileFeedItems associated with UserProfile if UserProfile is deleted
+    status_text = models.CharField(max_length=255)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Return the model as a string"""
+        return self.status_text
