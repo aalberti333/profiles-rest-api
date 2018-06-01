@@ -3,8 +3,11 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+
 from . import serializers
 from . import models
+from . import permissions
 
 # views are code that's run when user visits api endpoint
 
@@ -117,3 +120,5 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.UserProfileSerializer
     queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,) #uses a comma so PYthon knows to create as a tuple
+    permission_classes = (permissions.UpdateOwnProfile,) #include commas so you can add additional permissions/authentications
