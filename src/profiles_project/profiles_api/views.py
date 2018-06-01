@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework import filters
 
 from . import serializers
 from . import models
@@ -122,3 +123,5 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = models.UserProfile.objects.all()
     authentication_classes = (TokenAuthentication,) #uses a comma so PYthon knows to create as a tuple
     permission_classes = (permissions.UpdateOwnProfile,) #include commas so you can add additional permissions/authentications
+    filter_backends = (filters.SearchFilter,) #allows for search functionality
+    search_fields = ('name','email') #search filter backend to search for name and email
